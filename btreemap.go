@@ -1,15 +1,14 @@
-//+build !art
-
 package roaring64
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/RoaringBitmap/roaring"
-	"github.com/tidwall/btree"
 	"math"
 	"strconv"
 	"sync"
+
+	"github.com/RoaringBitmap/roaring"
+	"github.com/tidwall/btree"
 )
 
 func New(values ...uint64) *BTreemap {
@@ -21,7 +20,7 @@ func New(values ...uint64) *BTreemap {
 }
 
 type BTreemap struct {
-	tree *btree.BTree
+	tree       *btree.BTree
 	serializer serializer
 }
 
@@ -62,7 +61,8 @@ func (tm *BTreemap) AddInt(value int) {
 	tm.Add(uint64(value))
 }
 
-var keyPool = sync.Pool{New: func() interface{} { return &keyedBitmap{}}}
+var keyPool = sync.Pool{New: func() interface{} { return &keyedBitmap{} }}
+
 func makeKey(high uint32) (*keyedBitmap, func()) {
 	inst := keyPool.Get().(*keyedBitmap)
 	inst.HighBits = high
@@ -236,7 +236,6 @@ func (tm *BTreemap) Or(other *BTreemap) {
 	})
 }
 
-
 func (tm *BTreemap) OrCardinality(other *BTreemap) uint64 {
 	var total uint64
 
@@ -262,7 +261,6 @@ func (tm *BTreemap) OrCardinality(other *BTreemap) uint64 {
 	})
 	return total
 }
-
 
 func (tm *BTreemap) Xor(other *BTreemap) {
 	var toRemove []btree.Item
@@ -436,7 +434,6 @@ func (tm *BTreemap) Select(value uint64) (uint64, error) {
 	return result, nil
 }
 
-
 func (tm *BTreemap) String() string {
 	// inspired by https://github.com/fzandona/goroar/
 	var buffer bytes.Buffer
@@ -496,7 +493,7 @@ func (tm *BTreemap) Flip(rangeStart, rangeEnd uint64) {
 	bm := tm.getOrInsert(hiStart)
 	bm.Bitmap.Flip(uint64(loStart), math.MaxUint32)
 
-	for cur := hiStart+1; cur < loEnd-1; cur++ {
+	for cur := hiStart + 1; cur < loEnd-1; cur++ {
 		cbm := tm.getOrInsert(cur)
 		cbm.Flip(0, math.MaxUint32)
 	}
@@ -508,7 +505,6 @@ func (tm *BTreemap) Flip(rangeStart, rangeEnd uint64) {
 func (tm *BTreemap) FlipInt(rangeStart, rangeEnd int) {
 	tm.Flip(uint64(rangeStart), uint64(rangeEnd))
 }
-
 
 func (tm *BTreemap) AddRange(rangeStart, rangeEnd uint64) {
 	hiStart, loStart := splitHiLo(rangeStart)
@@ -522,7 +518,7 @@ func (tm *BTreemap) AddRange(rangeStart, rangeEnd uint64) {
 	bm := tm.getOrInsert(hiStart)
 	bm.Bitmap.AddRange(uint64(loStart), math.MaxUint32)
 
-	for cur := hiStart+1; cur < loEnd-1; cur++ {
+	for cur := hiStart + 1; cur < loEnd-1; cur++ {
 		cbm := tm.getOrInsert(cur)
 		cbm.AddRange(0, math.MaxUint32)
 	}
@@ -547,7 +543,7 @@ func (tm *BTreemap) RemoveRange(rangeStart, rangeEnd uint64) {
 	bm := tm.getOrInsert(hiStart)
 	bm.Bitmap.RemoveRange(uint64(loStart), math.MaxUint32)
 
-	for cur := hiStart+1; cur < loEnd-1; cur++ {
+	for cur := hiStart + 1; cur < loEnd-1; cur++ {
 		cbm := tm.getOrInsert(cur)
 		cbm.RemoveRange(0, math.MaxUint32)
 	}

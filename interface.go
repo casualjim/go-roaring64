@@ -1,13 +1,10 @@
 package roaring64
 
 import (
+	"io"
+
 	"github.com/RoaringBitmap/roaring"
 	"github.com/tidwall/btree"
-	"io"
-)
-
-const (
-	maxLowBit = 0xffffffff
 )
 
 func splitHiLo(val uint64) (uint32, uint32) {
@@ -27,19 +24,17 @@ func (kb *keyedBitmap) Less(than btree.Item, ctx interface{}) bool {
 	return kb.HighBits < than.(*keyedBitmap).HighBits
 }
 
-
 func (kb keyedBitmap) Clone() keyedBitmap {
 	return keyedBitmap{
 		HighBits: kb.HighBits,
-		Bitmap: kb.Bitmap.Clone(),
+		Bitmap:   kb.Bitmap.Clone(),
 	}
 }
-
 
 func (kb *keyedBitmap) ClonePtr() *keyedBitmap {
 	return &keyedBitmap{
 		HighBits: kb.HighBits,
-		Bitmap: kb.Bitmap.Clone(),
+		Bitmap:   kb.Bitmap.Clone(),
 	}
 }
 
@@ -92,7 +87,6 @@ type Bitmap64 interface {
 	Stats() roaring.Statistics
 }
 
-
 // IntIterable allows you to iterate over the values in a Bitmap
 type IntIterable interface {
 	HasNext() bool
@@ -108,7 +102,6 @@ type IntPeekable interface {
 	// AdvanceIfNeeded advances as long as the next value is smaller than minval
 	AdvanceIfNeeded(minval uint64)
 }
-
 
 // ManyIntIterable allows you to iterate over the values in a Bitmap
 type ManyIntIterable interface {

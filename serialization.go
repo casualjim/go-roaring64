@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/binary"
-	"github.com/RoaringBitmap/roaring"
-	"github.com/tidwall/btree"
 	"io"
 	"sync"
+
+	"github.com/RoaringBitmap/roaring"
+	"github.com/tidwall/btree"
 )
 
 // serializer that is compatible with C++ version found in
@@ -74,7 +75,7 @@ func (tm *BTreemap) UnmarshalBinary(data []byte) error {
 }
 
 func (tm *BTreemap) GetSizeInBytes() uint64 {
-	n := 8 + (uint64(tm.tree.Len())*4)
+	n := 8 + (uint64(tm.tree.Len()) * 4)
 	tm.forEachBitmap(func(bm *keyedBitmap) bool {
 		n += bm.GetSizeInBytes()
 		return true
@@ -83,12 +84,7 @@ func (tm *BTreemap) GetSizeInBytes() uint64 {
 }
 
 func (tm *BTreemap) GetSerializedSizeInBytes() uint64 {
-	n := 8 + (uint64(tm.tree.Len())*4)
-	tm.forEachBitmap(func(bm *keyedBitmap) bool {
-		n += bm.GetSerializedSizeInBytes()
-		return true
-	})
-	return n
+	return tm.serializer.GetSerializedSizeInBytes()
 }
 
 var byteBufferPool = sync.Pool{
@@ -108,10 +104,20 @@ func putByteBuffer(buf *bytes.Buffer) {
 type serializer interface {
 	io.WriterTo
 	io.ReaderFrom
+	GetSerializedSizeInBytes() uint64
 }
 
 type cppSerializer struct {
 	tm *BTreemap
+}
+
+func (j *cppSerializer) GetSerializedSizeInBytes() uint64 {
+	n := 8 + (uint64(j.tm.tree.Len()) * 4)
+	j.tm.forEachBitmap(func(bm *keyedBitmap) bool {
+		n += bm.GetSerializedSizeInBytes()
+		return true
+	})
+	return n
 }
 
 func (c *cppSerializer) WriteTo(w io.Writer) (int64, error) {
@@ -168,6 +174,15 @@ func (c *cppSerializer) ReadFrom(r io.Reader) (n int64, err error) {
 
 type jvmSerializer struct {
 	tm *BTreemap
+}
+
+func (j *jvmSerializer) GetSerializedSizeInBytes() uint64 {
+	n := 5 + (uint64(j.tm.tree.Len()) * 4)
+	j.tm.forEachBitmap(func(bm *keyedBitmap) bool {
+		n += bm.GetSerializedSizeInBytes()
+		return true
+	})
+	return n
 }
 
 func (j *jvmSerializer) WriteTo(w io.Writer) (int64, error) {

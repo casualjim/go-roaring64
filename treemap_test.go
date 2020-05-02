@@ -1,15 +1,17 @@
 package roaring64
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"math"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func u64(in uint32) uint64  {
+func u64(in uint32) uint64 {
 	return joinHiLo(in, in)
 }
 
@@ -240,7 +242,6 @@ func TestTreemap_Rank(t *testing.T) {
 	}
 }
 
-
 func TestBitmap_Select(t *testing.T) {
 	for N := uint64(1); N <= 8192; N *= 2 {
 		t.Run("rank tests"+strconv.Itoa(int(N)), func(t *testing.T) {
@@ -301,15 +302,30 @@ func TestSmoke(t *testing.T) {
 	fmt.Println()
 	fmt.Println(rb3.ToArray())
 	fmt.Println(rb3)
-	//rb4 := FastOr(rb1, rb2, rb3)
-	//fmt.Println(rb4)
-	// next we include an example of serialization
-	//buf := make([]byte, rb1.GetSerializedSizeInBytes())
-	//rb1.Write(buf) // we omit error handling
-	//newrb, _ := Read(buf)
-	//if rb1.Equals(newrb) {
-	//	fmt.Println("I wrote the content to a byte stream and read it back.")
-	//} else {
-	//	t.Error("Bad read")
-	//}
+	rb4 := FastOr(rb1, rb2, rb3)
+	fmt.Println(rb4)
+	// // next we include an example of serialization
+	buf := bytes.NewBuffer(make([]byte, 0, rb1.GetSerializedSizeInBytes()))
+	n, err := rb1.WriteTo(buf)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("wrote %d bytes", n)
+	if buf.Len() == 0 {
+		t.Error("buf can't be empty")
+	}
+	if int64(buf.Len()) != n {
+		t.Errorf("the buf len [%d] is different from the bytes written [%d]", buf.Len(), n)
+	}
+	// // rb1.Write(buf) // we omit error handling
+	nwewrb := New()
+	_, err = nwewrb.ReadFrom(bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		t.Error(err)
+	}
+	if rb1.Equals(nwewrb) {
+		fmt.Println("I wrote the content to a byte stream and read it back.")
+	} else {
+		t.Errorf("Bad read: %v != %v", rb1.ToArray(), nwewrb.ToArray())
+	}
 }
