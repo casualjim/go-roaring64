@@ -1,6 +1,6 @@
 github.com/Julusian/godocdown v0.0.0-20170816220326-6d19f8ff2df8/go.mod h1:INZr5t32rG59/5xeltqoCJoNY7e5x/3xoY9WSWVWg74=
-github.com/RoaringBitmap/roaring v0.7.3 h1:RwirWpvFONt2EwHHEHhER7S4BHZkyj3qL5LXLlnQPZ4=
-github.com/RoaringBitmap/roaring v0.7.3/go.mod h1:jdT9ykXwHFNdJbEtxePexlFYH9LXucApeS0/+/g+p1I=
+github.com/RoaringBitmap/roaring v0.8.0 h1:3naGkGvYAANr3ntyV+OpyhH+/rDaE2om9coNpIIdWAA=
+github.com/RoaringBitmap/roaring v0.8.0/go.mod h1:jdT9ykXwHFNdJbEtxePexlFYH9LXucApeS0/+/g+p1I=
 github.com/bits-and-blooms/bitset v1.2.0 h1:Kn4yilvwNtMACtf1eYDlG8H77R07mZSPbMjLyS07ChA=
 github.com/bits-and-blooms/bitset v1.2.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
